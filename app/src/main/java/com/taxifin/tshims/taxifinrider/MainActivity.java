@@ -20,6 +20,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.rengwuxian.materialedittext.MaterialEditText;
+import com.taxifin.tshims.taxifinrider.Common.Common;
 import com.taxifin.tshims.taxifinrider.Model.Rider;
 
 import dmax.dialog.SpotsDialog;
@@ -63,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
 
         auth = FirebaseAuth.getInstance();
         db = FirebaseDatabase.getInstance();
-        users = db.getReference("Riders");
+        users = db.getReference(Common.user_rider_tbl);
 
 
         // Init View
@@ -91,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void showLoginDialog() {
 
-        final AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+        AlertDialog.Builder dialog = new AlertDialog.Builder(MainActivity.this);
         dialog.setTitle("SIGN IN ");
         dialog.setMessage("Please use Email to Sign in");
 
