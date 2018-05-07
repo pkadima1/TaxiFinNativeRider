@@ -19,6 +19,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.firebase.geofire.GeoFire;
@@ -34,6 +36,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -41,6 +44,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.taxifin.tshims.taxifinrider.Helper.CustomInfoWindow;
 
 public class Home extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
@@ -72,6 +76,13 @@ public class Home extends AppCompatActivity
     GeoFire geoFire;
 
     Marker mUserMarker;
+
+    //Calling BottomSheetRider
+
+    ImageView imgExpandable;
+
+    BottomSheetRiderFragment mBottomSheet;
+    Button btnPickupRequest;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -108,7 +119,49 @@ public class Home extends AppCompatActivity
         ref = FirebaseDatabase.getInstance().getReference("Drivers");
         geoFire = new GeoFire(ref);
 
+        //Init View Bottom Sheet Rider
+
+        imgExpandable = (ImageView)findViewById(R.id.imgExpandable);
+        mBottomSheet = BottomSheetRiderFragment.newInstance("Rider Bottom Sheet");
+        imgExpandable.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Here can now list all avalable taxies???, will see
+
+                mBottomSheet.show(getSupportFragmentManager(),mBottomSheet.getTag());
+            }
+        });
+
+        btnPickupRequest = (Button)findViewById(R.id.btnPickupRequest);
+        btnPickupRequest.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                requestPickupHere(FirebaseAuth.getInstance().getCurrentUser().getUid());
+            }
+        });
+
         SetUpLocation();
+    }
+
+    private void requestPickupHere(String uid) {
+        DatabaseReference dbRequest = FirebaseDatabase.getInstance().getReference("PickupRequest");
+        GeoFire mGeoFire = new GeoFire(dbRequest);
+        mGeoFire.setLocation(uid, new GeoLocation(mLastLocation.getLatitude(), mLastLocation.getLongitude()));
+
+        if (mUserMarker.isVisible())
+            mUserMarker.remove();
+
+        //Add new marker
+
+        mUserMarker =   mMap.addMarker(new MarkerOptions()
+                        .title("Pickup Here")
+                        .snippet(" ")
+                        .position(new LatLng(mLastLocation.getLatitude(),mLastLocation.getLongitude()))
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+        mUserMarker.showInfoWindow();
+
+        btnPickupRequest.setText("Getting your DRIVER...");
+
     }
 
     //Ctrl+O
@@ -300,6 +353,9 @@ public class Home extends AppCompatActivity
         //Sample Marker
 
         mMap = googleMap;
+        mMap.getUiSettings().setZoomControlsEnabled(true);
+        mMap.getUiSettings().setZoomGesturesEnabled(true);
+        mMap.setInfoWindowAdapter(new CustomInfoWindow(this));
 
         }
 

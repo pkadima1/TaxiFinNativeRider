@@ -8,4 +8,8 @@
     <string name="nav_header_subtitle">android.studio@android.com</string>
     <string name="nav_header_desc">Navigation header</string>
     <string name="action_settings">Settings</string>
+    <string name="optional">Optional</string>
+    <string name="pickup">Pickup</string>
+    <string name="todo">TODO</string>
+    <string name="pickup_here">Pickup Here</string>
 </resources>
